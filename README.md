@@ -1,29 +1,50 @@
-# Pimoroni Pico Libraries and Examples
+# Pimoroni Pico Libraries and Examples including Adafruit custom font support
 
-Welcome to the brave new world of Pico! This repository contains the C/C++ and MicroPython libraries for our range of Raspberry Pi Pico addons.
+This repository is a fork of the pimoroni-pico library v. 0.0.8 Alpha that contains the C/C++ and MicroPython libraries for Pimoroni's range of Raspberry Pi Pico addons. This fork has been modified with adjusted versions of various functions from the Adafruit GFX library to allow the use of GNU FreeFonts for the Pimoroni Pico Explorer Base and Pimoroni Pico Display Pack.
 
-First of all you need to decide if your project is going to be done in MicroPython or using C/C++ with the Pico SDK. We have instructions for both here:
+After compilation the following new uf2's are created:
 
-- **MicroPython**: The easiest way to get start, setup is a breeze! [Click here to view instructions for MicroPython](setting-up-micropython.md)
-- **C/C++**: For more advanced users that want to unleash the full power of Pico! [Click here to view instructions for C/C++](setting-up-the-pico-sdk.md)
+\build\examples\pico_explorer\font_demo_explorer.uf2
+\build\examples\pico_display\font_demo_display.uf2
 
-# Software support for our Pico range
+They will display the standard Pimoromi font together with one or more additional GNU FreeFonts.
 
-It's very early days for Pico and we've been working our little socks off to get everything ready for launch.
+# To use the new fonts
 
-Most of our Pico addons have support for both C/C++ and MicroPython but we're still catching up a little bit in places.
+A number of fonts have been included in the fonts directory. To use a particular font do the following:
 
-The table below shows the current state of compatibly and some notes to set expectations:
+Add the following near the top of your .cpp file:
 
-|Product|C/C++ Library|MicroPython Library|Notes
-|---|---|---|---
-|[Pico Explorer Base](https://shop.pimoroni.com/products/pico-explorer-base)|Yes|Yes|
-|[Pico RGB Keypad](https://shop.pimoroni.com/products/pico-rgb-keypad-base)|Yes|Yes|
-|[Pico Unicorn Pack](https://shop.pimoroni.com/products/pico-unicorn-pack)|Yes|Yes|MicroPython support added in v0.0.3 Alpha
-|[Pico Audio Pack](https://shop.pimoroni.com/products/pico-audio-pack)|Yes|No|Limited support for MicroPython planned
-|[Pico Scroll Pack](https://shop.pimoroni.com/products/pico-scroll-pack)|Yes|Yes|
-|[Pico Display Pack](https://shop.pimoroni.com/products/pico-display-pack)|Yes|Yes|
+```
+#include "libraries/pico_graphics/gfxfont.h"
+#include "fonts/FreeSerif24pt7b.h" //Replace this with the name of the font you would like to use
+```
 
-We will keep this information updated as things develop.
+**Note**: You may have to adjust the path depending on where your .cpp file is in relation to the fonts folder and libraries folder.
 
-**Note:** It's very early days for Raspberry Pi Pico and it's likely that our libraries will undergo quite a lot of changes over the next couple of weeks as we take in feedback and expand the functionality.
+Then, for the Pico Explorer Base:
+
+```
+pico_explorer.customFontSetFont((const pimoroni::GFXfont&)FreeSerif24pt7b);
+```
+
+and then just write out as you normally would with the pico_explorer.text function e.g.
+
+```
+pico_explorer.text("Hello new fonts", Point(0, 220), 240, 1);
+```
+
+To switch back to the standard Pimoroni font:
+
+```
+pico_explorer.customFontSetFont();
+```
+
+For the Pico Display Pack just replace pico_explorer above with pico_display.
+
+Include as many fonts as you need in the include statements but please bear in mind that each font will take up memory / storage.
+
+**Note**: As far as I am aware the new fonts behave like the existing Pimoroni font with the exception that only character wrapping is supported at this time. i.e. it will not word wrap.**
+
+**NOte**: Sorry, there is no micro Python support at the moment. I will look into that.
+

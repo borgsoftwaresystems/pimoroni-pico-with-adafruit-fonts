@@ -1,9 +1,17 @@
 #include "pico_graphics.hpp"
 
+
+#include "gfxfont.h"
+
+
 extern uint8_t font_data[96][6];
 extern uint8_t character_widths[96];
 
 namespace pimoroni {
+
+
+  const GFXfont* gfxFont = nullptr;
+
 
   void PicoGraphics::set_pen(uint8_t r, uint8_t g, uint8_t b) {
     pen = create_pen(r, g, b);
@@ -123,6 +131,12 @@ namespace pimoroni {
   }
 
   void PicoGraphics::text(const std::string &t, const Point &p, int32_t wrap, uint8_t scale) {
+    
+    
+    if (gfxFont != nullptr) {
+      return customFontWrite(t, p, wrap, scale);
+    }
+    
     uint32_t co = 0, lo = 0; // character and line (if wrapping) offset
 
     size_t i = 0;
@@ -326,4 +340,98 @@ namespace pimoroni {
       }
     }
   }
+
+
+  void PicoGraphics::customFontSetFont(const GFXfont &font) {
+      gfxFont = (const pimoroni::GFXfont *)&font;
+      return;
+  }
+
+  void PicoGraphics::customFontSetFont() {
+      gfxFont = nullptr;
+      return;
+  }
+
+  //The following two functions have been taken from the Adafruit GFX library and modified
+  //Please see License-Adafruit at root
+  void PicoGraphics::customFontDrawChar(char letter, int x, int y, int size_x, int size_y) {
+    //const GFXfont* gfxFont = &font;
+    GFXglyph* gly = &gfxFont->glyph[letter - 32];
+    uint16_t data = gly->bitmapOffset;
+    uint16_t bo = gly->bitmapOffset;
+    uint8_t w = gly->width;
+    uint8_t h = gly->height;
+    int8_t xo = gly->xOffset;
+    int8_t yo = gly->yOffset;
+    uint8_t xx, yy, bits = 0, bit = 0;
+    int16_t xo16 = 0, yo16 = 0;
+
+    if (size_x > 1 || size_y > 1) {
+        xo16 = xo;
+        yo16 = yo;
+    }
+
+    for (yy = 0; yy < h; yy++) {
+        for (xx = 0; xx < w; xx++) {
+            if (!(bit++ & 7)) {
+                bits = gfxFont->bitmap[bo++];
+            }
+            if (bits & 0x80) { 
+                if (size_x == 1 && size_y == 1) {
+                    rectangle(Rect(x + xo + xx, y + yo + yy, 1, 1));
+                }
+                else {
+                    rectangle(Rect(x + (xo16 + xx) * size_x, y + (yo16 + yy) * size_y, size_x, size_y));
+                }
+            }
+            bits <<= 1;
+        }
+    }
+  }
+
+  void PicoGraphics::customFontWrite(const std::string &text, const Point &p, int32_t wrap, uint8_t scale) {    
+    GFXglyph* gly;
+    uint16_t data;
+    uint8_t c = (uint8_t)text[0];
+    size_t i = 0;
+
+    int32_t cursor_x = p.x;
+    int32_t cursor_y = p.y;
+
+    while (c != 0) {
+        if (c == '\n') {
+            cursor_x = 0;
+            cursor_y +=
+                (int16_t)scale * (uint8_t)gfxFont->yAdvance;
+        }
+        else if (c != '\r') {
+
+            gly = &gfxFont->glyph[c - 32];
+            data = gly->bitmapOffset;
+
+            uint16_t first = gfxFont->first;
+            if ((c >= first) && (c <= (uint8_t)gfxFont->last)) {
+                GFXglyph* gly = &gfxFont->glyph[c - 32];
+                uint8_t w = gly->width,
+                    h = gly->height;
+                if ((w > 0) && (h > 0)) { // Is there an associated bitmap?
+                    int16_t xo = (int8_t)gly->xOffset; // sic
+                    if (wrap && ((cursor_x + scale * (xo + w)) > wrap)) {
+                        cursor_x = 0;
+                        cursor_y += (int16_t)scale *
+                            (uint8_t)gfxFont->yAdvance;
+                    }
+                    customFontDrawChar(c, cursor_x, cursor_y, scale, scale);
+                }
+                cursor_x +=
+                    (uint8_t)gly->xAdvance * (int16_t)scale;
+            }
+        }     
+        c = (uint8_t)text[++i];
+    }
+ 
+    return;
+  } 
+
+
 }

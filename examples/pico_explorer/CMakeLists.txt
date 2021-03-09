@@ -10,3 +10,15 @@ target_link_libraries(explorer pico_stdlib pico_explorer msa301)
 
 # create map/bin/hex file etc.
 pico_add_extra_outputs(explorer)
+
+
+add_executable(
+  font_demo_explorer
+  font_demo.cpp
+)
+
+# Pull in pico libraries that we need
+target_link_libraries(font_demo_explorer pico_stdlib pico_explorer)
+
+# create map/bin/hex file etc.
+pico_add_extra_outputs(font_demo_explorer)

@@ -42,6 +42,29 @@ namespace pimoroni {
     void deflate(int32_t v);
   };
 
+
+  //The following structs have been taken from the Adafruit GFX library
+  //Please see License-Adafruit at root.
+  /// Font data stored PER GLYPH
+  typedef struct {
+    uint16_t bitmapOffset; ///< Pointer into GFXfont->bitmap
+    uint8_t width;         ///< Bitmap dimensions in pixels
+    uint8_t height;        ///< Bitmap dimensions in pixels
+    uint8_t xAdvance;      ///< Distance to advance cursor (x axis)
+    int8_t xOffset;        ///< X dist from cursor pos to UL corner
+    int8_t yOffset;        ///< Y dist from cursor pos to UL corner
+  } GFXglyph;
+
+  /// Data stored for FONT AS A WHOLE
+  typedef struct {
+    uint8_t* bitmap;  ///< Glyph bitmaps, concatenated
+    GFXglyph* glyph;  ///< Glyph array
+    uint16_t first;   ///< ASCII extents (first char)
+    uint16_t last;    ///< ASCII extents (last char)
+    uint8_t yAdvance; ///< Newline distance (y axis)
+  } GFXfont;
+
+
   class PicoGraphics {
   public:
     uint16_t *frame_buffer;
@@ -83,6 +106,12 @@ namespace pimoroni {
     void polygon(const std::vector<Point> &points);
     void triangle(Point p1, Point p2, Point p3);
     void line(Point p1, Point p2);
+
+
+    void customFontSetFont(const GFXfont &font);
+    void customFontSetFont();
+    void customFontDrawChar(char letter, int x, int y, int size_x, int size_y);
+    void customFontWrite(const std::string &text, const Point &p, int32_t wrap, uint8_t scale);
   };
 
 }
