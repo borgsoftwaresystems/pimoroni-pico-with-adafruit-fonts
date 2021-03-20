@@ -22,9 +22,9 @@ PicoDisplay pico_display(buffer);
 int main() {
 	stdio_init_all();
 
-  pico_display.set_backlight(100);
-  
   pico_display.init();
+  pico_display.set_backlight(100);
+
   pico_display.set_pen(0, 0, 0);
   pico_display.clear();     
   pico_display.set_pen(128, 128, 128);   
