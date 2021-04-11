@@ -22,3 +22,11 @@ target_link_libraries(font_demo_explorer pico_stdlib pico_explorer)
 
 # create map/bin/hex file etc.
 pico_add_extra_outputs(font_demo_explorer)
+add_executable(
+  text_demo
+  text_demo.cpp
+)
+
+target_link_libraries(text_demo pico_stdlib pico_explorer msa301)
+
+pico_add_extra_outputs(text_demo)

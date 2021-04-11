@@ -9,6 +9,7 @@ on:
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
+  RELEASE_FILE: ${{github.event.repository.name}}-micropython-${{github.event.release.tag_name}}.uf2
 
 jobs:
   build:
@@ -29,8 +30,8 @@ jobs:
     - name: Checkout MicroPython
       uses: actions/checkout@v2
       with:
-        repository: pimoroni/micropython
-        ref: continuous-integration
+        repository: micropython/micropython
+        ref: master
         submodules: false  # MicroPython submodules are hideously broken
         path: micropython
 
@@ -63,7 +64,7 @@ jobs:
     - name: Build MicroPython
       shell: bash
       working-directory: micropython/ports/rp2
-      run: make USER_C_MODULES=../../../pimoroni-pico/micropython/modules -j2
+      run: make USER_C_MODULES=../../../pimoroni-pico/micropython/modules/micropython.cmake -j2
 
     - name: Upload .uf2
       if: github.event_name == 'release'
@@ -73,5 +74,5 @@ jobs:
       with:
         asset_path: micropython/ports/rp2/build/firmware.uf2
         upload_url: ${{github.event.release.upload_url}}
-        asset_name: pimoroni-pico-micropython.uf2
+        asset_name: ${{env.RELEASE_FILE}}
         asset_content_type: application/octet-stream
