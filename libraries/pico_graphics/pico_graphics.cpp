@@ -4,9 +4,6 @@
 #include "gfxfont.h"
 
 
-extern uint8_t font_data[96][6];
-extern uint8_t character_widths[96];
-
 namespace pimoroni {
   PicoGraphics::PicoGraphics(uint16_t width, uint16_t height, uint16_t *frame_buffer)
   : frame_buffer(frame_buffer), bounds(0, 0, width, height), clip(0, 0, width, height) {
